@@ -51,12 +51,18 @@ jobs:
           if (!(Test-Path "./exe/long_test/long_test.exe")) { exit 1 }
           if (!(Test-Path "./exe/full_test/full_test.exe")) { exit 1 }
 
+      - name: Copy config files
+        run: |
+          Copy-Item -Path "./config/setup/cal_text.json" -Destination "./exe/setup/" -Force
+          Copy-Item -Path "./config/setup/test_tolerances.json" -Destination "./exe/setup/" -Force
+
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
+          file_glob: true
           files: |
-            ./exe/setup/setup.exe
-            ./exe/long_test/long_test.exe
-            ./exe/full_test/full_test.exe
+            ./exe/setup/**
+            ./exe/long_test/**
+            ./exe/full_test/**
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
