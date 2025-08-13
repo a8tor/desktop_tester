@@ -37,12 +37,12 @@ jobs:
 
       - name: Build long_test.exe
         run: |
-          pyinstaller --noconfirm --onefile --windowed --distpath ./exe/long_test --workpath ./temp/long_test --specpath ./temp/long_test ./long_test/long_test.py
+          pyinstaller --noconfirm --onefile --windowed --distpath ./exe/long_test --workpath ./temp/long_test --specpath ./temp/long_test ./source/long_test/long_test.py
           Remove-Item -Recurse -Force ./temp/long_test -ErrorAction SilentlyContinue
 
       - name: Build full_test.exe
         run: |
-          pyinstaller --noconfirm --onefile --windowed --distpath ./exe/full_test --workpath ./temp/full_test --specpath ./temp/full_test ./full_test/full_test.py
+          pyinstaller --noconfirm --onefile --windowed --distpath ./exe/full_test --workpath ./temp/full_test --specpath ./temp/full_test ./source/full_test/full_test.py
           Remove-Item -Recurse -Force ./temp/full_test -ErrorAction SilentlyContinue
 
       - name: Verify builds
