@@ -51,34 +51,12 @@ jobs:
           if (!(Test-Path "./exe/long_test/long_test.exe")) { exit 1 }
           if (!(Test-Path "./exe/full_test/full_test.exe")) { exit 1 }
 
-      - name: Copy config files
-        run: |
-          Copy-Item -Path "./config/setup/cal_text.json" -Destination "./exe/setup/" -Force
-          Copy-Item -Path "./config/setup/test_tolerances.json" -Destination "./exe/setup/" -Force
-
-      - name: Create release package
-        run: |
-          # Create a temporary directory for the release
-          $tempDir = "./release_temp"
-          New-Item -ItemType Directory -Force -Path $tempDir
-          
-          # Create setup directory and copy all setup files
-          $setupDir = "$tempDir/setup"
-          New-Item -ItemType Directory -Force -Path $setupDir
-          Copy-Item -Path "./exe/setup/*" -Destination $setupDir -Recurse -Force
-          
-          # Copy config files to setup directory
-          Copy-Item -Path "./config/setup/*.json" -Destination $setupDir -Force
-          
-          # Copy other executables to the root of the release
-          Copy-Item -Path "./exe/long_test/*.exe" -Destination $tempDir -Force
-          Copy-Item -Path "./exe/full_test/*.exe" -Destination $tempDir -Force
-      
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ./release_temp/*
-            ./release_temp/setup/*
+            ./exe/setup/setup.exe
+            ./exe/long_test/long_test.exe
+            ./exe/full_test/full_test.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
