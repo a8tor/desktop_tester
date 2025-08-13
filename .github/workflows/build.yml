@@ -51,7 +51,7 @@ jobs:
           if (!(Test-Path "./exe/long_test/long_test.exe")) { exit 1 }
           if (!(Test-Path "./exe/full_test/full_test.exe")) { exit 1 }
 
-      - name: Upload Release Assets
+      - name: Upload Release Assets to GitHub
         uses: softprops/action-gh-release@v1
         with:
           files: |
@@ -60,3 +60,20 @@ jobs:
             ./exe/full_test/full_test.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync Release to GitLab
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          RELEASE_NOTES="Release notes for version $TAG_NAME"
+          
+          # Создание релиза в GitLab
+          curl --request POST --header "PRIVATE-TOKEN: ${{ secrets.GITLAB_TOKEN }}" \
+          --data "name=$TAG_NAME&tag_name=$TAG_NAME&description=$RELEASE_NOTES" \
+          "https://gitlab.com/api/v4/projects/6b8b92878fd19f9f183d9b09b1134e0e4353493c/releases"
+
+          # Загрузка артефактов в GitLab
+          curl --request POST --header "PRIVATE-TOKEN: ${{ secrets.GITLAB_TOKEN }}" \
+          --form "file=@./exe/setup/setup.exe" \
+          --form "file=@./exe/long_test/long_test.exe" \
+          --form "file=@./exe/full_test/full_test.exe" \
+          "https://gitlab.com/api/v4/projects/6b8b92878fd19f9f183d9b09b1134e0e4353493c/uploads"
