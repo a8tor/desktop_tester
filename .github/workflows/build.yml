@@ -17,12 +17,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.13.2'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller
+          pip install pyinstaller pyserial pandas matplotlib
 
       - name: Create output directories
         run: |
@@ -32,12 +32,12 @@ jobs:
 
       - name: Build setup.exe
         run: |
-          pyinstaller --noconfirm --onefile --windowed --distpath ./exe/setup --workpath ./temp/setup --specpath ./temp/setup ./source/setup/setup.py
+          pyinstaller --noconfirm --onefile --windowed --add-data "*.py;." --distpath ./exe/setup --workpath ./temp/setup --specpath ./temp/setup ./source/setup/setup.py
           Remove-Item -Recurse -Force ./temp/setup -ErrorAction SilentlyContinue
 
       - name: Build long_test.exe
         run: |
-          pyinstaller --noconfirm --onefile --windowed --distpath ./exe/long_test --workpath ./temp/long_test --specpath ./temp/long_test ./source/long_test/long_test.py
+          pyinstaller --noconfirm --onefile --windowed --add-data "*.py;." --distpath ./exe/long_test --workpath ./temp/long_test --specpath ./temp/long_test ./source/long_test/long_test.py
           Remove-Item -Recurse -Force ./temp/long_test -ErrorAction SilentlyContinue
 
       - name: Build full_test.exe
