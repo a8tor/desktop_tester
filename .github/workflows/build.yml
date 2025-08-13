@@ -1,0 +1,63 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30  # Увеличиваем таймаут на случай долгой сборки
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'  # Рекомендую фиксированную стабильную версию
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+
+      - name: Create output directories
+        run: |
+          mkdir -p ./exe/setup
+          mkdir -p ./exe/long_test
+          mkdir -p ./exe/full_test
+
+      # Параллельная сборка для ускорения (необязательно)
+      - name: Build setup.exe
+        run: |
+          pyinstaller --noconfirm --onefile --windowed --distpath ./exe/setup --workpath ./temp/setup --specpath ./temp/setup ./source/setup/setup.py
+          rm -rf ./temp/setup  # Удаляем временные файлы
+
+      - name: Build long_test.exe
+        run: |
+          pyinstaller --noconfirm --onefile --windowed --distpath ./exe/long_test --workpath ./temp/long_test --specpath ./temp/long_test ./long_test/long_test.py
+          rm -rf ./temp/long_test
+
+      - name: Build full_test.exe
+        run: |
+          pyinstaller --noconfirm --onefile --windowed --distpath ./exe/full_test --workpath ./temp/full_test --specpath ./temp/full_test ./full_test/full_test.py
+          rm -rf ./temp/full_test
+
+      - name: Verify builds
+        run: |
+          if not exist "./exe/setup/setup.exe" (exit 1)
+          if not exist "./exe/long_test/long_test.exe" (exit 1)
+          if not exist "./exe/full_test/full_test.exe" (exit 1)
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./exe/setup/setup.exe
+            ./exe/long_test/long_test.exe
+            ./exe/full_test/full_test.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
